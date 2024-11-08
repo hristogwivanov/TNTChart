@@ -1,17 +1,14 @@
+// server/config/db.js
 const mongoose = require('mongoose');
-require('dotenv').config();
+require('dotenv').config(); // Loads .env from the root directory
 
 const db = process.env.mongoURI;
+console.log('Mongo URI:', process.env.mongoURI);
+console.log('JWT Secret:', process.env.JWT_SECRET);
 
 const connectDB = async () => {
   try {
-    await mongoose.connect(db, {
-      useNewUrlParser: true,
-      useCreateIndex: true,
-      useFindAndModify: false,
-      useUnifiedTopology: true
-    });
-
+    await mongoose.connect(db);
     console.log('MongoDB Connected...');
   } catch (err) {
     console.error(err.message);

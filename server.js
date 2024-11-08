@@ -1,3 +1,4 @@
+require('dotenv').config(); // Load environment variables at the very beginning
 const express = require('express');
 const connectDB = require('./server/config/db');
 const path = require('path');
@@ -6,7 +7,7 @@ const cors = require('cors');
 const app = express();
 
 // Connect Database
-// connectDB();
+connectDB();
 
 // Init Middleware
 app.use(express.json());
@@ -49,7 +50,4 @@ function startServer(port) {
 }
 
 const PORT = process.env.PORT || 5000;
-
-// app.listen(PORT, () => console.log(`Server started on port ${PORT}`));
-
 startServer(PORT);

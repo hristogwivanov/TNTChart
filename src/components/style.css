@@ -145,9 +145,8 @@
   padding-top: 0.5vw;
   padding-bottom: 0.5vw;
   display: flex;
-  justify-content: space-between;
+  justify-content: space-between; /* Keeps space between sections */
   align-items: center;
-  /* pointer-events: none; */
 }
 
 .token-list-logo {
@@ -270,4 +269,20 @@
 .font-regular {
   font-family: "altivo";
   font-weight: 400;
+}
+
+
+.greeting-container {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: white;
+  white-space: nowrap; /* Prevents the text from wrapping */
+  margin-left: 20px;
+}
+
+.greeting {
+  margin-right: 10px;
+  font-size: large;
+  color: white;
 }

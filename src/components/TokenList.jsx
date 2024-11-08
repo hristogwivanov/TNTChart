@@ -1,35 +1,37 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useContext } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchTokenListRequest } from "../redux/actions/tokenAction";
 import TokenListLogo from "../assets/img/Tokenbar-Logo.png";
-import TopToken from "./common/TopToken";
-import TokenTable from "./TokenTable";
 import TopTokenList from "./common/TopTokenList";
+import TokenTable from "./TokenTable";
+import LoginButton from "./common/LoginButton"; // Import the LoginButton component
 import "./style.css";
 import { createTheme, useMediaQuery } from "@mui/material";
+import { AuthContext } from "../contexts/AuthContext"; // Import AuthContext
+
+// Rest of your TokenList code...
 
 const TokenList = () => {
   const theme = createTheme({
-    // Define the theme within the component
     breakpoints: {
       values: {
         xs: 0,
         sm: 600,
         md: 960,
-        lg: 1160, // Change the value of lg breakpoint here
+        lg: 1160,
         xl: 1560,
       },
     },
   });
 
-  const isLargeScreen = useMediaQuery(theme.breakpoints.up("lg")); // Use the theme with useMediaQuery
-  const MediumScreen = useMediaQuery(theme.breakpoints.down("lg")); // Use the theme with useMediaQuery
+  const { isAuthenticated, user } = useContext(AuthContext); // Access auth state
+  const isLargeScreen = useMediaQuery(theme.breakpoints.up("lg"));
+  const MediumScreen = useMediaQuery(theme.breakpoints.down("lg"));
 
   const [isMediumScreen, setIsMediumScreen] = useState(MediumScreen);
 
   const dispatch = useDispatch();
   useEffect(() => {
-    // Dispatch the action to fetch token data
     dispatch(fetchTokenListRequest());
   }, [fetchTokenListRequest]);
 
@@ -45,20 +47,17 @@ const TokenList = () => {
       (a.volume24HrsETH * 1) / (a.tradeVolumeETH * 1)
   );
 
-  // Slice the sorted token list to display only the first 7 items
-  const limitedTokenList = sortedTokenList.slice(0, 10).map((item, index) => {
-    return {
-      num: "#" + (index + 1),
-      id: item.id,
-      name: item.name,
-      symbol: item.symbol,
-      logo: item.logo,
-      riserate: (
-        ((item.volume24HrsETH * 1) / (item.tradeVolumeETH * 1)) *
-        100
-      ).toFixed(2),
-    };
-  });
+  const limitedTokenList = sortedTokenList.slice(0, 10).map((item, index) => ({
+    num: "#" + (index + 1),
+    id: item.id,
+    name: item.name,
+    symbol: item.symbol,
+    logo: item.logo,
+    riserate: (
+      ((item.volume24HrsETH * 1) / (item.tradeVolumeETH * 1)) *
+      100
+    ).toFixed(2),
+  }));
 
   const [isEditing, setIsEditing] = useState(false);
   const [text, setText] = useState("Select Token/Contract Address ⌄");
@@ -73,13 +72,10 @@ const TokenList = () => {
 
   const handleInputChange = (e) => {
     setFilteredTokenList(
-      [...tokenList].filter((obj) => {
-        // Check if any of the object's properties include the text
-        return (
-          obj.symbol.toLowerCase().includes(e.target.value.toLowerCase()) ||
-          obj.id.toLowerCase().includes(e.target.value.toLowerCase())
-        );
-      })
+      [...tokenList].filter((obj) =>
+        obj.symbol.toLowerCase().includes(e.target.value.toLowerCase()) ||
+        obj.id.toLowerCase().includes(e.target.value.toLowerCase())
+      )
     );
   };
 
@@ -87,7 +83,6 @@ const TokenList = () => {
 
   const handleClickOutside = (event) => {
     if (divRef.current && !divRef.current.contains(event.target)) {
-      // Clicked outside the div
       handleSaveClick();
     }
   };
@@ -96,7 +91,6 @@ const TokenList = () => {
     setIsEditing(false);
     setFilteredTokenList([...tokenList]);
     setText("Select Token/Contract Address ⌄");
-    // Perform any save operation with the edited text here
   };
 
   useEffect(() => {
@@ -107,13 +101,22 @@ const TokenList = () => {
   }, []);
 
   return (
-    <div className="tokenlist-background font-header">
-      <img
-        src={TokenListLogo}
-        alt="Token List Logo"
-        className="token-list-logo"
-      />
+<div className="tokenlist-background font-header">
+  <img
+    src={TokenListLogo}
+    alt="Token List Logo"
+    className="token-list-logo"
+  />
       <TopTokenList tokenList={limitedTokenList} />
+
+      {/* Display greeting if user is authenticated */}
+      <div className="greeting-container">
+    {isAuthenticated && user && (
+      <span className="greeting">Hi, {user.name}</span>
+    )}
+    <LoginButton />
+  </div>
+
       <div
         className="dropdown-container font-header"
         style={{ position: "relative" }}
@@ -125,7 +128,7 @@ const TokenList = () => {
             className="dropdown-button"
             onChange={handleInputChange}
             style={{ fontFamily: "altivo" }}
-            autoFocus // Automatically focus on the input field when it appears
+            autoFocus
           />
         ) : (
           <button
@@ -153,7 +156,6 @@ const TokenList = () => {
               left: isLargeScreen ? "-13vw" : "-37vw",
             }}
           >
-            {/* Add your div content here */}
             <TokenTable tokenData={filteredTokenList} />
           </div>
         )}
