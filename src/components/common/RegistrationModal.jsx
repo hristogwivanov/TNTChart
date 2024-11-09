@@ -26,25 +26,28 @@ const RegistrationModal = ({ open, onClose, onLoginOpen }) => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
-    const [registrationSuccess, setRegistrationSuccess] = useState(false); // New state variable
+    const [registrationSuccess, setRegistrationSuccess] = useState(false);
+    const [errorMessage, setErrorMessage] = useState(''); // State for error messages
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        setErrorMessage(''); // Reset error message
 
         if (password.length < 6) {
-            alert("Password must be at least 6 characters.");
+            setErrorMessage("Password must be at least 6 characters.");
             return;
         }
 
         if (password !== confirmPassword) {
-            alert("Passwords don't match!");
+            setErrorMessage("Passwords don't match!");
             return;
         }
 
         try {
+            // Convert email to lowercase
             const res = await axios.post('http://localhost:5000/api/users/register', {
                 name: username,
-                email,
+                email: email.toLowerCase(), // Convert to lowercase
                 password,
             });
 
@@ -53,30 +56,30 @@ const RegistrationModal = ({ open, onClose, onLoginOpen }) => {
 
         } catch (error) {
             console.error('Registration error:', error.response?.data || error.message);
-            alert(error.response?.data.errors[0].msg || 'Registration failed');
+            // Display specific error message
+            setErrorMessage(error.response?.data.errors[0].msg || 'Registration failed');
         }
     };
 
-
     const handleLoginClick = () => {
-        onClose();       // Close the registration modal
-        onLoginOpen();   // Open the login modal
-        setRegistrationSuccess(false); // Reset success state
-        // Optionally reset form fields here
-        setUsername('');
-        setEmail('');
-        setPassword('');
-        setConfirmPassword('');
+        onClose();
+        onLoginOpen();
+        setRegistrationSuccess(false);
+        resetForm();
     };
 
     const handleModalClose = () => {
         onClose();
-        setRegistrationSuccess(false); // Reset success state
-        // Optionally reset form fields here
+        setRegistrationSuccess(false);
+        resetForm();
+    };
+
+    const resetForm = () => {
         setUsername('');
         setEmail('');
         setPassword('');
         setConfirmPassword('');
+        setErrorMessage(''); // Reset error message on close
     };
 
     return (
@@ -97,7 +100,6 @@ const RegistrationModal = ({ open, onClose, onLoginOpen }) => {
                     }}
                 >
                     {registrationSuccess ? (
-                        // Success message
                         <>
                             <Typography
                                 variant="h6"
@@ -129,19 +131,24 @@ const RegistrationModal = ({ open, onClose, onLoginOpen }) => {
                             </Typography>
                         </>
                     ) : (
-                        // Registration form
                         <>
                             <Typography
                                 variant="h6"
                                 component="h2"
                                 gutterBottom
-                                sx={{
-                                    textAlign: 'center',
-                                    fontWeight: 'bold',
-                                }}
+                                sx={{ textAlign: 'center', fontWeight: 'bold' }}
                             >
                                 Register
                             </Typography>
+                            {errorMessage && (
+                                <Typography
+                                    variant="body2"
+                                    color="error"
+                                    sx={{ textAlign: 'center', marginBottom: '16px' }}
+                                >
+                                    {errorMessage}
+                                </Typography>
+                            )}
                             <form onSubmit={handleSubmit}>
                                 <TextField
                                     label="Username"

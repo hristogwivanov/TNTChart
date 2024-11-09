@@ -46,6 +46,8 @@
     },
     "scripts": {
         "start": "concurrently \"react-scripts start\" \"node server.js\"",
+        "server": "node server.js",
+        "client": "react-scripts start",
         "dev": "concurrently \"react-scripts start\" \"nodemon server.js\"",
         "build": "react-scripts build",
         "test": "react-scripts test",

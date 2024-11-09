@@ -8,6 +8,7 @@ export const AuthProvider = ({ children }) => {
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true); // Only for initial load check
+    const [error, setError] = useState(null); // Add error state
 
     useEffect(() => {
         const token = localStorage.getItem('token');
@@ -39,9 +40,10 @@ export const AuthProvider = ({ children }) => {
             localStorage.setItem('token', res.data.token);
             axios.defaults.headers.common['x-auth-token'] = res.data.token;
             setIsAuthenticated(true);
+            setError(null); // Clear error on successful login
             await loadUser(); // Wait for loadUser to complete to populate user data
         } catch (err) {
-            console.error("Login error:", err.response ? err.response.data : err.message);
+            setError("Invalid username or password"); // Set error message on login failure
             setIsAuthenticated(false);
             setUser(null);
         }
@@ -50,12 +52,13 @@ export const AuthProvider = ({ children }) => {
     const logout = () => {
         setIsAuthenticated(false);
         setUser(null);
+        setError(null); // Clear error on logout
         localStorage.removeItem('token');
         delete axios.defaults.headers.common['x-auth-token'];
     };
 
     return (
-        <AuthContext.Provider value={{ isAuthenticated, user, loading, login, logout }}>
+        <AuthContext.Provider value={{ isAuthenticated, user, loading, login, logout, error, setError }}>
             {children}
         </AuthContext.Provider>
     );

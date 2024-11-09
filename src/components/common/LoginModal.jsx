@@ -1,6 +1,6 @@
 // src/components/LoginModal.js
-import React, { useState, useContext } from 'react';
-import { Modal, Box, TextField, Button, Typography, Link } from '@mui/material';
+import React, { useState, useContext, useEffect } from 'react';
+import { Modal, Box, TextField, Button, Typography, Link, Alert } from '@mui/material';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { AuthContext } from '../../contexts/AuthContext';
 
@@ -22,14 +22,28 @@ const darkTheme = createTheme({
 });
 
 const LoginModal = ({ open, onClose, onRegisterOpen }) => {
-    const { login } = useContext(AuthContext);
+    const { login, isAuthenticated, error, setError } = useContext(AuthContext); // Add isAuthenticated
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
 
+    // Close modal on successful login
+    useEffect(() => {
+        if (isAuthenticated && open) {
+            onClose();
+        }
+    }, [isAuthenticated, open, onClose]);
+
+    // Clear error when the modal opens or closes
+    useEffect(() => {
+        if (!open) {
+            setError(null);
+        }
+    }, [open, setError]);
+
     const handleSubmit = (e) => {
         e.preventDefault();
-        login(email, password); // Call login with email and password
-        onClose(); // Close the modal
+        setError(null); // Clear any previous error before attempting login
+        login(email, password);
     };
 
     const handleRegistrationClick = () => {
@@ -57,6 +71,14 @@ const LoginModal = ({ open, onClose, onRegisterOpen }) => {
                     <Typography variant="h6" component="h2" gutterBottom sx={{ textAlign: 'center', fontWeight: 'bold' }}>
                         Login
                     </Typography>
+
+                    {/* Display the error message if it exists */}
+                    {error && (
+                        <Alert severity="error" sx={{ marginBottom: 2 }}>
+                            {error}
+                        </Alert>
+                    )}
+
                     <form onSubmit={handleSubmit}>
                         <TextField
                             label="Email"

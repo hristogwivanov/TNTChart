@@ -49,5 +49,5 @@ function startServer(port) {
   });
 }
 
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.NODE_PORT || 5000;
 startServer(PORT);
